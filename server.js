@@ -46,6 +46,13 @@ let resObj = {}
 app.post('/api/shorturl', bodyParser.urlencoded({ extended: false}), (req, res) =>{
   
   let inputUrl = req.body['url'];
+
+  let urlRegex = new RegExp(/^[http://www.]/gi)
+  if(!inputUrl.match(urlRegex)){
+    res.json({ error: 'invalid url' })
+    return
+  }
+
   resObj['original_url'] = inputUrl;
   
 let inputShort = 1;
@@ -70,5 +77,15 @@ let inputShort = 1;
           )
         }
       })
+})
 
+app.get('/api/shorturl/:input', (req, res) => {
+  let input = req.params.input
+  Url.findOne({short: input}, (err, result) =>{
+    if(!err && result != undefined){
+      res.redirect(result.original)
+    }else {
+      res.json({ error: 'invalid url' })
+    }
+  })
 })
